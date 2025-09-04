@@ -2,19 +2,14 @@ body {
     font-family: Calibri, Arial;
     background-color: #f4f4f9;
     color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
     margin: 0;
 }
 .container {
-    background-color: #ffffff;
+    background-color: #fff;
     padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 500px;
+    min-height: 100vh;
+    box-sizing: border-box;
     text-align: center;
 }
 h1 {
