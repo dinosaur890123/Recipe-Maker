@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const ingredientInput = document.getElementById('ingredient-input');
-    const addIngredientBtn = document.getElementById('add-ingredient-button');
+    const addIngredientButton = document.getElementById('add-ingredient-button');
     const ingredientList = document.getElementById('ingredient-list');
-    const findRecipesBtn = document.getElementById('find-recipes-button');
+    const findRecipesButton = document.getElementById('find-recipes-button');
     const recipeResults = document.getElementById('recipe-results');
 
     let ingredients = [];
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             li.innerHTML = `
                 <span>${ingredient}</span>
-                <button class="remove-btn" data-index="${index}">×</button>
+                <button class="remove-button" data-index="${index}">×</button>
             `;
             ingredientList.appendChild(li);
         });
@@ -27,23 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     async function findRecipes() {
-        const apiKey = '';
+        const apiKey = 'b0cad93a1b1b4b4fb64f8c6a6c046211';
         const ingredientsString = ingredients.join(',');
-
         recipeResults.innerHTML = '<p>Finding recipes...</p>';
-
         if (ingredients.length === 0) {
-            recipeResults.innerHTML = '<p>Please add some ingredients first!</p>';
-            return;
-        }
-
-        if (apiKey === 'YOUR_API_KEY_HERE' || apiKey === '') {
-            recipeResults.innerHTML = '<p style="color: red; font-weight: bold;">Please add your Spoonacular API key to the script.js file.</p>';
+            recipeResults.innerHTML = '<p>Please add some ingredients first</p>';
             return;
         }
 
         const apiUrl = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredientsString}&number=12&apiKey=${apiKey}`;
-
         try {
             const response = await fetch(apiUrl);
             if (!response.ok) {
@@ -53,15 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
             displayRecipes(recipes);
         } catch (error) {
             console.error('Error fetching recipes:', error);
-            recipeResults.innerHTML = `<p>Sorry, there was an error fetching recipes. Make sure your API key is correct and you have requests remaining.</p>`;
+            recipeResults.innerHTML = `<p>Sorry, there was an error fetching recipes.</p>`;
         }
     }
-
     function displayRecipes(recipes) {
         recipeResults.innerHTML = '';
 
         if (recipes.length === 0) {
-            recipeResults.innerHTML = '<p>No recipes found with these ingredients. Try adding more!</p>';
+            recipeResults.innerHTML = '<p>No recipes found with these ingredients. Try adding more</p>';
             return;
         }
 
@@ -74,29 +65,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="card-content">
                     <h3>${recipe.title}</h3>
                     <p>Missing ${recipe.missedIngredientCount} ingredients</p>
-                    <a href="${recipeUrl}" target="_blank">View Recipe</a>
+                    <a href="${recipeUrl}" target="_blank">View recipe</a>
                 </div>
             `;
             recipeResults.appendChild(recipeCard);
         });
     }
-
-    addIngredientBtn.addEventListener('click', addIngredient);
-
+    addIngredientButton.addEventListener('click', addIngredient);
     ingredientInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             addIngredient();
         }
     });
-
     ingredientList.addEventListener('click', (event) => {
-        if (event.target.classList.contains('remove-btn')) {
+        if (event.target.classList.contains('remove-button')) {
             const indexToRemove = parseInt(event.target.getAttribute('data-index'), 10);
             ingredients.splice(indexToRemove, 1);
             renderIngredients();
         }
     });
-
-    findRecipesBtn.addEventListener('click', findRecipes);
+    findRecipesButton.addEventListener('click', findRecipes);
 });
 
