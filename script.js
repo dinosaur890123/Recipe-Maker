@@ -38,7 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function findRecipes() {
         const apiKey = 'b0cad93a1b1b4b4fb64f8c6a6c046211';
         const ingredientsString = ingredients.join(',');
-        recipeResults.innerHTML = '<p>Finding recipes...</p>';
+        recipeResults.innerHTML = `
+            <div class="loader-container">
+                <div class="loader"></div>
+            </div>`;
         if (ingredients.length === 0) {
             recipeResults.innerHTML = '<p>Please add some ingredients first</p>';
             return;
@@ -59,12 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function displayRecipes(recipes) {
         recipeResults.innerHTML = '';
-
         if (recipes.length === 0) {
             recipeResults.innerHTML = '<p>No recipes found with these ingredients. Try adding more</p>';
             return;
         }
-
         recipes.forEach(recipe => {
             const recipeCard = document.createElement('div');
             recipeCard.classList.add('recipe-card');
@@ -86,7 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
         modalOverlay.innerHTML = `
             <div class="modal-content">
                 <button class="close-modal-button">&times;</button>
-                <div class="modal-body"><p>Loading recipe details...</p></div>
+                <div class="modal-body">
+                <div class="loader-container">
+                <div class="loader"></div>
+                </div>
+                </div>
             </div>
         `;
         document.body.appendChild(modalOverlay);
