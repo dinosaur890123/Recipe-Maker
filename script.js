@@ -4,7 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ingredientList = document.getElementById('ingredient-list');
     const findRecipesButton = document.getElementById('find-recipes-button');
     const recipeResults = document.getElementById('recipe-results');
+    const savedRecipesContainer = document.getElementById('saved-recipes-list');
     let ingredients = [];
+    let savedRecipeIds = [];
     function saveIngredients() {
         localStorage.setItem('recipeIngredients', JSON.stringify(ingredients));
     }
@@ -13,6 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedIngredients) {
             ingredients = JSON.parse(savedIngredients);
             renderIngredients();
+        }
+    }
+    function saveFavourites() {
+        localStorage.setItem('savedRecipeIds', JSON.stringify(savedRecipeIds));
+    }
+    async function loadFavorites() {
+        const savedIds = localStorage.getItem('savedRecipeIds');
+        if (savedIds) {
+            savedRecipeIds = JSON.parse(savedIds);
+            if (savedRecipeIds.length > 0) {
+                displaySavedRecipes();
+            }
         }
     }
     function renderIngredients() {
@@ -70,6 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const recipeCard = document.createElement('div');
             recipeCard.classList.add('recipe-card');
             recipeCard.dataset.id = recipe.id;
+            const isSaved = savedRecipeIds.includes(recipe.id);
+            const saveButtonClass = isSaved ? 'saved' : '';
+            const saveButtonText = isSaved ? 'Saved' : 'Save';
             recipeCard.innerHTML = `
                 <img src="${recipe.image}" alt="${recipe.title}" onerror="this.onerror=null;this.src='https://placehold.co/312x231/e9e9e9/333?text=Image+Not+Found';">
                 <div class="card-content">
@@ -81,6 +98,43 @@ document.addEventListener('DOMContentLoaded', () => {
             recipeResults.appendChild(recipeCard);
         });
     }
+    async function displaySavedRecipes() {
+        if (!savedRecipesContainer) return;
+        savedRecipesContainer.innerHTML = `
+            <div class="loader-container">
+                <div class="loader"></div>
+            </div>`;
+    
+    if (savedRecipeIds.length === 0) {
+        savedRecipesContainer.innerHTML = "<p>You haven't saved any recipes ye</p>"
+        return;
+    }
+    const apiKey = 'b0cad93a1b1b4b4fb64f8c6a6c046211';
+    const apiUrl = `https://api.spoonacular.com/recipes/informationBulk?ids=${savedRecipeIds.join(',')}&apiKey=${apiKey}`;
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error('Failed to fetch saved recipes.');
+        const recipes = await response.json();
+        savedRecipesContainer.innerHTML = '';
+        recipes.forEach(recipe => {
+            const recipeCard = document.createElement('div');
+            recipeCard.classList.add('recipe-card');
+            recipeCard.dataset.id = recipe.id;
+            recipeCard.innerHTML = `
+            <img src="${recipe.image}" alt="${recipe.title}" onerror="this.onerror=null;this.src='https://placehold.co/312x231/e9e9e9/333?text=Image+Not+Found';">
+            <div class="card-content">
+                <h3>${recipe.title}</h3>
+                <button class="details-button">View Details</button>
+                <button class="save-button saved">Saved</button>
+            </div>
+            `;
+            savedRecipesContainer.appendChild(recipeCard);
+        });
+    } catch (error) {
+        console.error(error);
+        savedRecipesContainer.innerHTML = "<p>Could not load saved recipes<p>"
+    }
+}
     async function getRecipeDetails(recipeId) {
         const modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
@@ -144,6 +198,28 @@ document.addEventListener('DOMContentLoaded', () => {
             saveIngredients();
         }
     });
+    document.body.addEventListener('click', (event) => {
+        const target = event.target;
+        const card = target.closest('.recipe-card');
+        if (target.classList.contains('details-button') && card) {
+            getRecipeDetails(card.dataset.id);
+        }
+        if (target.classList.contains('save-button') && card) {
+            const recipeId = parseInt(card.dataset.id, 10);
+            const index = savedRecipeIds.indexOf(recipeId);
+            if (index > -1) {
+                savedRecipeIds.splice(index, 1);
+                target.classList.remove('saved');
+                target.textContent = 'Save'
+            } else {
+                savedRecipeIds.push(recipeId);
+                target.classList.add('saved');
+                target.textContent = 'Saved';
+            }
+            saveFavourites();
+            displaySavedRecipes();
+        }
+    })
     recipeResults.addEventListener('click', (event) => {
         if (event.target.classList.contains('details-button')) {
             const card = event.target.closest('.recipe-card');
@@ -154,5 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     findRecipesButton.addEventListener('click', findRecipes);
     loadIngredients();
+    loadFavourites();
 });
 

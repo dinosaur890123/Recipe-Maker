@@ -145,6 +145,39 @@ h2 {
     animation: spin 1.2s linear infinite;
 }
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {transform: rotate(0deg);}
+    100% {transform: rotate(360deg);}
+}
+.save-button {
+    background-color: #e0e0e0;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s, color 0.2s;
+    margin-left: 10px;
+}
+.save-button:hover {
+    background-color: #d5d5d5;
+}
+.save-button.saved {
+    background-color: #6a75f4; 
+    color: white;
+    border-color: #5c67f2;
+}
+.save-button.saved:hover {
+    background-color: #5c67f2;
+}
+.saved-recipes-section {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px solid white;
+}
+#saved-recipes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
 }
