@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const apiUrl = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredientsString}&number=12&apiKey=${apiKey}`;
+        const apiUrl = `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${ingredientsString}&addRecipeInformation=true&number=12&apiKey=${apiKey}`;
         try {
             const response = await fetch(apiUrl);
             if (!response.ok) {
