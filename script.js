@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error(`API Error: ${response.statusText} (Status: ${response.status})`);
             }
-            const recipes = await response.json();
+            const data = await response.json();
+            const recipes = data.results || [];
             displayRecipes(recipes);
         } catch (error) {
             console.error('Error fetching recipes:', error);
@@ -100,7 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="${recipe.image}" alt="${recipe.title}" onerror="this.onerror=null;this.src='https://placehold.co/312x231/e9e9e9/333?text=Image+Not+Found';">
                 <div class="card-content">
                     <h3>${recipe.title}</h3>
-                    <p>Missing ${recipe.missedIngredientCount} ingredients</p>
+                    <div class="card-info">
+                    <span>${recipe.readyInMinutes} min</span>
+                    <span>${recipe.servings} servings</span>
+                    </div>
+                    <p>Missing ${recipe.missedIngredientCount || 0} ingredients</p>
                     <button class="details-button">View Details</button>
                     <button class="save-button ${saveButtonClass}">${saveButtonText}</button>
                 </div>
@@ -134,6 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="${recipe.image}" alt="${recipe.title}" onerror="this.onerror=null;this.src='https://placehold.co/312x231/e9e9e9/333?text=Image+Not+Found';">
                     <div class="card-content">
                         <h3>${recipe.title}</h3>
+                        <div class="card-info">
+                        <span>${recipe.readyInMinutes} min</span>
+                        <span>${recipe.servings} servings</span>
                          <button class="details-button">View Details</button>
                          <button class="save-button saved">Saved</button>
                     </div>
