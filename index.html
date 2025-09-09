@@ -18,7 +18,35 @@
         <ul id="ingredient-list">
         </ul>
         <button id="find-recipes-button">Find Recipes</button>
+        <div class="filters-container">
+            <div class="filter">
+                <label for="diet-filter">Diet:</label>
+                    <select id="diet-filter">
+                        <option value="">Any</option>
+                        <option value="vegetarian">Any</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="gluten free">Gluten free</option>
+                        <option value="paleo">Paleo</option>
+                        <option value="ketogenic">Ketogenic</option>
+                    </select>
+            </div>
+            <div class="filter">
+                <label for="cuisine-filter">Cuisine:</label>
+                <select id="cuisine-filter">
+                    <option value="">Any</option>
+                    <option value="italian">Italian</option>
+                    <option value="mexican">Mexican</option>
+                    <option value="chinese">Chinese</option>
+                    <option value="indian">Indian</option>
+                    <option value="thai">Thai</option>
+                    <option value="japanese">Japanese</option>
+                </select>
+            </div>
+        </div>
         <div id="recipe-results">
+        </div>
+        <div class="load-more-container">
+            <button id="load-more-button" class="hidden">Load More</button>
         </div>
         <div class="saved-recipes-section">
             <h2>Your Saved recipes</h2>

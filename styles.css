@@ -195,3 +195,47 @@ h2 {
     color: gray;
     margin: 10px 0;
 }
+.filters-container {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+.filter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.filter label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #555555;
+}
+.filter select {
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #dddddd;
+    background-color: #ffffff;
+    font-size: 1rem;
+}
+.load-more-container {
+    margin: 2rem 0;
+}
+#load-more-button {
+    background-color: #ffc107;
+    color: #333;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+#load-more-button:hover {
+    background-color: #e0a800;
+}
+.hidden {
+    display: none;
+}

@@ -5,8 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const findRecipesButton = document.getElementById('find-recipes-button');
     const recipeResults = document.getElementById('recipe-results');
     const savedRecipesContainer = document.getElementById('saved-recipes-list');
+    const dietFilter = document.getElementById('diet-filter');
+    const cuisineFilter = document.getElementById('cuisine-filter');
+    const loadMoreButton = document.getElementById('load-more-button');
     let ingredients = [];
     let savedRecipeIds = [];
+    let currentOffset = 0;
 
     function saveIngredients() {
         localStorage.setItem('recipeIngredients', JSON.stringify(ingredients));
@@ -19,10 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function saveFavorites() {
+    function saveFavourites() {
         localStorage.setItem('savedRecipeIds', JSON.stringify(savedRecipeIds));
     }
-    async function loadFavorites() {
+
+    async function loadFavourites() {
         const savedIds = localStorage.getItem('savedRecipeIds');
         if (savedIds) {
             savedRecipeIds = JSON.parse(savedIds);
@@ -54,28 +59,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function findRecipes() {
+    async function findRecipes(isLoadMore = false) {
+        if (!isLoadMore) {
+            currentOffset = 0;
+            recipeResults.innerHTML = '';
+            loadMoreButton.classList.add('hidden');
+        }
         const apiKey = 'b0cad93a1b1b4b4fb64f8c6a6c046211';
         const ingredientsString = ingredients.join(',');
-        recipeResults.innerHTML = `
+        if (!isLoadMore) {
+            recipeResults.innerHTML = `
             <div class="loader-container">
                 <div class="loader"></div>
             </div>`;
+        }
             
         if (ingredients.length === 0) {
             recipeResults.innerHTML = '<p>Please add some ingredients first</p>';
             return;
         }
 
-        const apiUrl = `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${ingredientsString}&addRecipeInformation=true&number=12&apiKey=${apiKey}`;
+        let apiUrl = `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${ingredientsString}&addRecipeInformation=true&number=12&apiKey=${apiKey}`;
+        const diet = dietFilter.value;
+        const cuisine = cuisineFilter.value;
+        if (diet) {
+            apiUrl += `&diet=${diet}`;
+        }
+        if (cuisine) {
+            apiUrl += `&cuisine=${cuisine}`;
+        }
+        apiUrl += `&offset=${currentOffset}`;
         try {
             const response = await fetch(apiUrl);
             if (!response.ok) {
+                const errorBody = await response.text();
                 throw new Error(`API Error: ${response.statusText} (Status: ${response.status})`);
             }
             const data = await response.json();
             const recipes = data.results || [];
+            if (!isLoadMore) {
+                recipeResults.innerHTML = '';
+            }
             displayRecipes(recipes);
+            if (recipes.length === 12) {
+                loadMoreButton.classList.remove('hidden');
+            } else {
+                loadMoreButton.classList.add('hidden');
+            }
         } catch (error) {
             console.error('Error fetching recipes:', error);
             recipeResults.innerHTML = `<p>Sorry, there was an error fetching recipes.</p>`;
@@ -83,10 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayRecipes(recipes) {
-        recipeResults.innerHTML = '';
-
-        if (recipes.length === 0) {
-            recipeResults.innerHTML = '<p>No recipes found with these ingredients. Try adding more</p>';
+        if (recipes.length === 0 && currentOffset === 0) {
+            recipeResults.innerHTML = '<p>No recipes found with these ingredients and filters. Try changing your search.</p>';
             return;
         }
 
@@ -140,8 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="card-content">
                         <h3>${recipe.title}</h3>
                         <div class="card-info">
-                        <span>${recipe.readyInMinutes} min</span>
-                        <span>${recipe.servings} servings</span>
+                            <span>${recipe.readyInMinutes} min</span>
+                            <span>${recipe.servings} servings</span>
+                        </div>
                          <button class="details-button">View Details</button>
                          <button class="save-button saved">Saved</button>
                     </div>
@@ -188,21 +217,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const recipe = await response.json();
             const modalBody = modalOverlay.querySelector('.modal-body');
-            const ingredientsHtml = recipe.extendedIngredients.map(ing => `<li>${ing.original}</li>`).join('');
-            modalBody.innerHTML = `
+            function renderRecipeDetails() {
+                const ingredientsHtml = recipe.extendedIngredients.map(ing => `<li>${ing.original}</li>`).join('');
+                modalBody.innerHTML = `
                 <h2>${recipe.title}</h2>
                 <img class="recipe-detail-img" src="${recipe.image}" alt="${recipe.title}">
                 <h3>Ingredients</h3>
                 <ul>${ingredientsHtml}</ul>
                 <h3>Instructions</h3>
                 <div class="instructions">${recipe.instructions || '<p>No instructions provided.</p>'}</div>
-            `;
+                <button id="generate-shopping-list-button">Create Shopping List</button>`;
+                modalBody.querySelector('#generate-shopping-list-button').addEventListener('click', generateShoppingList);
+            }
+            function generateShoppingList() {
+                const recipeIngredientNames = recipe.extendedIngredients.map(ing => ing.name.toLowerCase());
+                const shoppingListItems = recipeIngredientNames.filter(recipeIng => {
+                    return !ingredients.some(userIng => recipeIng.includes(userIng));
+                });
+                const shoppingListHtml = shoppingListItems.length > 0
+                    ? shoppingListItems.map(item => `<li><input type="checkbox"> <label>${item}</label></li>`).join('')
+                    : `<li>You have all the ingredients for this recipe</li>`;
+                modalBody.innerHTML = `
+                <h2>Shopping List for ${recipe.title}</h2>
+                <ul class="shopping-list">${shoppingListHtml}</ul>
+                <button id="back-to-recipe-button">Back to Recipe</button>`;
+                modalBody.querySelector('#back-to-recipe-button').addEventListener('click', renderRecipeDetails);
+            }
+            renderRecipeDetails();
         } catch (error) {
-            console.error('Error fetching recipe details:', error);
+            console.error('Error fetching recipe', error);
             modalOverlay.querySelector('.modal-body').innerHTML = '<p>There was an issue fetching recipe details. Try again later</p>';
         }
     }
-
+    
     addIngredientButton.addEventListener('click', addIngredient);
     ingredientInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
@@ -230,13 +277,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.classList.add('saved');
                 target.textContent = 'Saved';
             }
-            saveFavorites();
+            saveFavourites();
             displaySavedRecipes();
         }
     });
 
-    findRecipesButton.addEventListener('click', findRecipes);
+    findRecipesButton.addEventListener('click', () => findRecipes(false));
+    loadMoreButton.addEventListener('click', () => {
+        currentOffset += 12;
+        findRecipes(true);
+    });
     loadIngredients();
-    loadFavorites();
+    loadFavourites();
 });
 
