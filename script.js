@@ -11,7 +11,24 @@ document.addEventListener('DOMContentLoaded', () => {
     let ingredients = [];
     let savedRecipeIds = [];
     let currentOffset = 0;
-
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            toast.addEventListener('transitionend', () => {
+                if (toast.parentElement) {
+                    toast.parentElement.removeChild(toast);
+                }
+            }, 3000);
+        })
+    }
     function saveIngredients() {
         localStorage.setItem('recipeIngredients', JSON.stringify(ingredients));
     }
@@ -227,6 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>Instructions</h3>
                 <div class="instructions">${recipe.instructions || '<p>No instructions provided.</p>'}</div>
                 <button id="generate-shopping-list-button">Create Shopping List</button>`;
+                modalBody.querySelector('#print-recipe-button').addEventListener('click', () => {
+                    window.print();
+                });
                 modalBody.querySelector('#generate-shopping-list-button').addEventListener('click', generateShoppingList);
             }
             function generateShoppingList() {
@@ -272,10 +292,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 savedRecipeIds.splice(index, 1);
                 target.classList.remove('saved');
                 target.textContent = 'Save';
+                showToast('Added to favourites');
             } else {
                 savedRecipeIds.push(recipeId);
                 target.classList.add('saved');
                 target.textContent = 'Saved';
+                showToast('Added to favourites');
             }
             saveFavourites();
             displaySavedRecipes();
