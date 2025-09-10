@@ -239,3 +239,42 @@ h2 {
 .hidden {
     display: none;
 }
+#generate-shopping-button {
+    background-color: #ffc107;
+    color: #333;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+}
+#generate-shopping-list-button:hover, #back-to-recipe-button:hover {
+    background-color: #e0a800;
+}
+.shopping-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    margin-top: 1rem;
+}
+.shopping-list li {
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+.shopping-list li:last-child {
+    border-bottom: none;
+}
+.shopping-list li input[type="checkbox"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
