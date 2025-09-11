@@ -332,3 +332,90 @@ h2 {
     opacity: 1;
     bottom: 30px;
 }
+#meal-planner-container {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #dddddd;
+}
+.planner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.planner-day {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    background-color: #fafafa;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+}
+.planner-day h4 {
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+    color: #555555;
+    font-weight: 600;
+}
+.day-content-placeholder {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #b1b0b0;
+    font-size: 0.85rem;
+    border: 2px dashed #e0e0e0;
+    border-radius: 6px;
+}
+.planner-recipe-card {
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.planner-recipe-card img {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+.planner-recipe-card p {
+    margin: 0;
+    font-weight: 500;
+    color: #333333;
+}
+.planner-recipe-card-button {
+    width: 100%;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    background-color: #e74c3c;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.planner-recipe-card button:hover {
+    background-color: #c0392b;
+}
+.day-select-modal-content {
+    padding: 1.5rem;
+}
+.day-select-modal-content h3 {
+    margin-top: 0;
+}
+.day-.day-select-modal-content select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 6px;
+    border: 1px solid #cccccc;
+}

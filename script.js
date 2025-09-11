@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let ingredients = [];
     let savedRecipeIds = [];
     let currentOffset = 0;
+    let mealPlan = {
+        monday: null, tuesday: null, wednesday: null, thursday: null, friday: null, saturday: null, sunday: null
+    };
     
     function showToast(message) {
         const toast = document.createElement('div');
@@ -38,6 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ingredients = JSON.parse(savedIngredients);
             renderIngredients();
         }
+    }
+    function saveMealPlan() {
+        localStorage.setItem('mealPlan', JSON.stringify(mealPlan));
+    }
+    async function loadMealPlan() {
+        const savedPlan = localStorage.getItem('mealPlan');
+        if (savedPlan) {
+            mealPlan = JSON.parse(savedPlan);
+        }
+        renderMealPlanner();
     }
 
     function saveFavourites() {
@@ -269,6 +282,76 @@ document.addEventListener('DOMContentLoaded', () => {
             modalOverlay.querySelector('.modal-body').innerHTML = '<p>There was an issue fetching recipe details. Try again later</p>';
         }
     }
+    function showDaySelectModal(recipeId, recipeTitle) {
+        const daySelectModal = document.createElement('div');
+        daySelectModal.className = 'modal-overlay';
+        const days = Object.keys(mealPlan);
+        const optionsHtml = days.map(day => `<option value="${day}">${day.charAt(0).toUpperCase() + day.slice(1)}</option>`).join('');
+        daySelectModal.innerHTML = `
+            <div class="modal-content day-select-modal-content">
+                <button class="close-modal-button">&times;</button>
+                <h3>Add "${recipeTitle}" to:</h3>
+                <select id="day-selector">
+                    ${optionsHtml}
+                </select>
+                <button id="confirm-add-to-plan" class="button">Add to Plan</button>
+            </div>
+        `;
+        document.body.appendChild(daySelectModal);
+        const closeModal = () => document.body.removeChild(daySelectModal);
+        daydaySelectModal.querySelector('.close-modal-button').addEventListener('click', closeModal);
+        daySelectModal.addEventListener('click', (e) => { if(e.target === daySelectModal) closeModal();});
+        daySelectModal.querySelector('#confirm-add-to-plan').addEventListener('click', () => {
+            const selectedDay = daySelectModal.querySelector('#day-selector').value;
+            mealPlan[selectedDay] = recipeId;
+            saveMealPlan();
+            renderMealPlanner();
+            closeModal();
+            showToast(`Added to ${selectedDay.charAt(0).toUpperCase() + selectedDay.slice(1)}!`);
+        });
+    }
+    async function renderMealPlanner() {
+        const plannerGrid = document.getElementById('planner-grid');
+        if (!plannerGrid) return;
+        plannerGrid.innerHTML = '';
+        const recipeIdsToFetch = [...new Set(Object.values(mealPlan).filter(id => id !== null))];
+        let recipeDetails = {};
+        if (recipeIdsToFetch.length > 0) {
+            const apiKey = 'b0cad93a1b1b4b4fb64f8c6a6c046211';
+            const apiUrl = `https://api.spoonacular.com/recipes/informationBulk?ids=${recipeIdsToFetch.join(',')}&apiKey=${apiKey}`;
+            try {
+                const response = await fetch(apiUrl);
+                const recipes = await response.json();
+                recipes.forEach(recipe => recipeDetails[recipe.id] = recipe);
+
+            } catch (error) {
+                console.error("Could not fetch planner recipe details", error);
+            }
+        }
+        for (const day in mealPlan) {
+            const dayContainer = document.createElement('div');
+            dayContainer.className = 'planner-day';
+            const recipeId = mealPlan[day];
+            let contentHtml = `
+            <h4>${day.charAt(0).toUpperCase() + day.slice(1)}</h4>
+            <div class="day-content-placeholder">
+                <span>Empty</span>
+            </div>`;
+            if (recipeId && recipeDetails[recipeId]) {
+                const recipe = recipeDetails[recipeId];
+                contentHtml = `
+                    <h4>${day.charAt(0).toUpperCase() + day.slice(1)}</h4>
+                    <div class="planner-recipe-card">
+                        <img src="${recipe.image}" alt="${recipe.title}">
+                        <p>${recipe.title}</p>
+                        <button class="remove-from-plan-button" data-day="${day}">Remove</button>
+                    </div>
+                `;
+            }
+            dayContainer.innerHTML = contentHtml;
+            plannerGrid.appendChild(dayContainer);
+        }
+    }
     
     addIngredientButton.addEventListener('click', addIngredient);
     ingredientInput.addEventListener('keypress', (event) => {
@@ -280,6 +363,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('click', (event) => {
         const target = event.target;
         const card = target.closest('.recipe-card');
+        if (target.classList.contains('remove-from-plan-button')) {
+            const day = target.dataset.day;
+            if (day && mealPlan.hasOwnProperty(day)) {
+                mealPlan[day] = null;
+                saveMealPlan();
+                renderMealPlanner();
+                showToast('Recipe removed from planner.');  
+            }
+        }
 
         if (target.classList.contains('details-button') && card) {
             getRecipeDetails(card.dataset.id);
@@ -311,5 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     loadIngredients();
     loadFavourites();
+    loadMealPlan();
 });
 
