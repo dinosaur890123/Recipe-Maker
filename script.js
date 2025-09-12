@@ -310,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <ul>${ingredientsHtml}</ul>
                 <h3>Instructions</h3>
                 <div class="instructions">${recipe.instructions || '<p>No instructions provided.</p>'}</div>
+                <button id="print-recipe-button">Print Recipe</button>
                 <button id="generate-shopping-list-button">Create Shopping List</button>`;
                 modalBody.querySelector('#print-recipe-button').addEventListener('click', () => {
                     window.print();
