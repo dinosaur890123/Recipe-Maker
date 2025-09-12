@@ -419,3 +419,41 @@ h2 {
     border-radius: 6px;
     border: 1px solid #cccccc;
 }
+#generate-weekly-list-button {
+    display: block; 
+    margin: 0 auto 1.5rem auto; 
+    background-color: #33d6a6; 
+}
+#generate-weekly-list-button:hover {
+    background-color: #218838;
+}
+.weekly-shopping-list-modal .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+.weekly-shopping-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+.weekly-shopping-list li {
+    padding: 0.75rem 0.5rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e8e6e6;
+    font-size: 1rem;
+}
+.weekly-shopping-list li:last-child {
+    border-bottom: none;
+}
+.weekly-shopping-list input[type="checkbox"] {
+    margin-right: 1rem;
+    width: 20px;
+    height: 20px;
+}
+.weekly-shopping-list label {
+    flex-grow: 1;
+}
+.weekly-shopping-list input[type="checkbox"]:checked + label {
+    text-decoration: line-through;
+    color: #727272;
+}

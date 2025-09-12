@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dietFilter = document.getElementById('diet-filter');
     const cuisineFilter = document.getElementById('cuisine-filter');
     const loadMoreButton = document.getElementById('load-more-button');
+    const generateWeeklyListButton = document.getElementById('generate-weekly-list-button');
     let ingredients = [];
     let savedRecipeIds = [];
     let currentOffset = 0;
@@ -29,8 +30,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (toast.parentElement) {
                     toast.parentElement.removeChild(toast);
                 }
-            }, 3000);
-        })
+            });
+        }, 3000);
+    }
+    async function generateWeeklyShoppingList() {
+        const plannedRecipeIds = [...new Set(Object.values(mealPlan).filter(id => id !== null))];
+        if (plannedRecipeIds.length === 0) {
+            showToast('Your meal planner is empty');
+            return;
+        }
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'modal-overlay weekly-shopping-list-modal';
+        modalOverlay.innerHTML = `
+        <div class="modal-content">
+        <button class="close-modal-button">&times;</button>
+        <div class="modal-body">
+            <div class="loader-container"><div class="loader"></div></div>
+        </div>
+        </div>`;
+        document.body.appendChild(modalOverlay);
+        const closeModal = () => document.body.removeChild(modalOverlay);
+        modalOverlay.querySelector('.close-modal-button').addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal();});
+        try {
+            const apiKey = 'b0cad93a1b1b4b4fb64f8c6a6c046211';
+            const apiUrl = `https://api.spoonacular.com/recipes/informationBulk?ids=${plannedRecipeIds.join(',')}&apiKey=${apiKey}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('Failed to fetch recipe details for the week');
+            const recipes = await response.json();
+            let allIngredients = [];
+            recipes.forEach(recipe => {
+                recipe.extendedIngredients.forEach(ingredient => {
+                    allIngredients.push(ingredient.name.toLowerCase());
+                });
+            });
+            const pantryIngredients = ingredients.map(ing => ing.toLowerCase());
+            const neededIngredients = allIngredients.filter(ing => !pantryIngredients.includes(ing));
+            const uniqueNeededIngredients = [...new Set(neededIngredients)];
+            const modalBody = modalOverlay.querySelector('.modal-body');
+            let shoppingListHtml = `<h2>Weekly Shopping List</h2>`;
+            if (uniqueNeededIngredients.length > 0) {
+                const listItemsHtml = uniqueNeededIngredients.sort().map(item => `
+                    <li>
+                        <input type="checkbox" id="shop-${item.replace(/\s+/g, '-')}" name="${item}">
+                        <label for="shop-${item.replace(/\s+/g, '-')}">${item.charAt(0).toUpperCase() + item.slice(1)}</label>
+                    </li>
+                `).join('');
+                shoppingListHtml += `<ul class="weekly-shopping-list">${listItemsHtml}</ul>`;
+            } else {
+                shoppingListHtml += `<p>You have all the ingredients for your planned meals for this week</p>`;
+            }
+        } catch (error) {
+            console.error("Issue with the shopping list generation", error);
+            modalOverlay.querySelector('.modal-body').innerHTML = '<p>There was an issue generating your shopping list.</p>';
+            showToast('Error generating shopping list.');
+        }
     }
     function saveIngredients() {
         localStorage.setItem('recipeIngredients', JSON.stringify(ingredients));
@@ -298,10 +352,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         document.body.appendChild(daySelectModal);
-        const closeModal = () => document.body.removeChild(daySelectModal);
-        daydaySelectModal.querySelector('.close-modal-button').addEventListener('click', closeModal);
-        daySelectModal.addEventListener('click', (e) => { if(e.target === daySelectModal) closeModal();});
-        daySelectModal.querySelector('#confirm-add-to-plan').addEventListener('click', () => {
+    const closeModal = () => document.body.removeChild(daySelectModal);
+    daySelectModal.querySelector('.close-modal-button').addEventListener('click', closeModal);
+    daySelectModal.addEventListener('click', (e) => { if(e.target === daySelectModal) closeModal();});
+    daySelectModal.querySelector('#confirm-add-to-plan').addEventListener('click', () => {
             const selectedDay = daySelectModal.querySelector('#day-selector').value;
             mealPlan[selectedDay] = recipeId;
             saveMealPlan();
@@ -384,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 savedRecipeIds.splice(index, 1);
                 target.classList.remove('saved');
                 target.textContent = 'Save';
-                showToast('Added to favourites');
+                showToast('Removed from favourites');
             } else {
                 savedRecipeIds.push(recipeId);
                 target.classList.add('saved');
@@ -401,6 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentOffset += 12;
         findRecipes(true);
     });
+    generateWeeklyListButton.addEventListener('click', generateWeeklyShoppingList)
     loadIngredients();
     loadFavourites();
     loadMealPlan();
