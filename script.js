@@ -80,6 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 shoppingListHtml += `<p>You have all the ingredients for your planned meals for this week</p>`;
             }
+            shoppingListHtml += `<button class="close-modal-button secondary-close">Close</button>`;
+            modalBody.innerHTML = shoppingListHtml;
+            modalBody.querySelector('.secondary-close')?.addEventListener('click', closeModal);
         } catch (error) {
             console.error("Issue with the shopping list generation", error);
             modalOverlay.querySelector('.modal-body').innerHTML = '<p>There was an issue generating your shopping list.</p>';
@@ -167,10 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const diet = dietFilter.value;
         const cuisine = cuisineFilter.value;
         if (diet) {
-            apiUrl += `&diet=${diet}`;
+            apiUrl += `&diet=${encodeURIComponent(diet)}`;
         }
         if (cuisine) {
-            apiUrl += `&cuisine=${cuisine}`;
+            apiUrl += `&cuisine=${encodeURIComponent(cuisine)}`;
         }
         apiUrl += `&offset=${currentOffset}`;
         try {
@@ -206,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const recipeCard = document.createElement('div');
             recipeCard.classList.add('recipe-card');
             recipeCard.dataset.id = recipe.id;
+        recipeCard.dataset.title = recipe.title;
             const isSaved = savedRecipeIds.includes(recipe.id);
             const saveButtonClass = isSaved ? 'saved' : '';
             const saveButtonText = isSaved ? 'Saved' : 'Save';
@@ -219,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <p>Missing ${recipe.missedIngredientCount || 0} ingredients</p>
                     <button class="details-button">View Details</button>
+            <button class="add-to-planner-button">Add to Planner</button>
                     <button class="save-button ${saveButtonClass}">${saveButtonText}</button>
                 </div>
             `;
@@ -428,8 +433,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        if (target.classList.contains('remove-button')) {
+            const index = parseInt(target.dataset.index, 10);
+            if (!isNaN(index)) {
+                ingredients.splice(index, 1);
+                renderIngredients();
+                saveIngredients();
+            }
+        }
+
         if (target.classList.contains('details-button') && card) {
             getRecipeDetails(card.dataset.id);
+        }
+
+        if (target.classList.contains('add-to-planner-button') && card) {
+            const recipeId = parseInt(card.dataset.id, 10);
+            const title = card.dataset.title || 'Recipe';
+            showDaySelectModal(recipeId, title);
         }
 
         if (target.classList.contains('save-button') && card) {

@@ -411,7 +411,7 @@ h2 {
 .day-select-modal-content h3 {
     margin-top: 0;
 }
-.day-.day-select-modal-content select {
+.day-select-modal-content select {
     width: 100%;
     padding: 0.5rem;
     margin-top: 1rem;
@@ -456,4 +456,25 @@ h2 {
 .weekly-shopping-list input[type="checkbox"]:checked + label {
     text-decoration: line-through;
     color: #727272;
+}
+.add-to-planner-button {
+    background-color: #33a6d6;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    transition: background-color 0.2s;
+}
+.add-to-planner-button:hover {
+    background-color: #1f87b3;
+}
+.weekly-shopping-list-modal .secondary-close {
+    margin-top: 1.25rem;
+    background-color: #6c757d;
+}
+.weekly-shopping-list-modal .secondary-close:hover {
+    background-color: #5a6268;
 }
