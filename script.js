@@ -316,11 +316,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h3>Instructions</h3>
                 <div class="instructions">${recipe.instructions || '<p>No instructions provided.</p>'}</div>
                 <button id="print-recipe-button">Print Recipe</button>
-                <button id="generate-shopping-list-button">Create Shopping List</button>`;
+                <button id="generate-shopping-list-button">Create Shopping List</button>
+                <button id="add-to-planner-from-details">Add to Meal Planner</button>`;
                 modalBody.querySelector('#print-recipe-button').addEventListener('click', () => {
                     window.print();
                 });
                 modalBody.querySelector('#generate-shopping-list-button').addEventListener('click', generateShoppingList);
+                modalBody.querySelector('#add-to-planner-from-details').addEventListener('click', () => {
+                    showDaySelectModal(recipe.id, recipe.title);
+                });
             }
             function generateShoppingList() {
                 const recipeIngredientNames = recipe.extendedIngredients.map(ing => ing.name.toLowerCase());
