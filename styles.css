@@ -478,3 +478,13 @@ h2 {
 .weekly-shopping-list-modal .secondary-close:hover {
     background-color: #5a6268;
 }
+#generate-weekly-list-button:hover {
+    background-color: #33d6a6;
+}
+.button.destructive {
+    background-color: #dc3545;
+    margin-left: 10px;
+}
+.button.destructive:hover {
+    background-color: #ec3750;
+}

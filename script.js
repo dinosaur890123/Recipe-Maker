@@ -9,11 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const cuisineFilter = document.getElementById('cuisine-filter');
     const loadMoreButton = document.getElementById('load-more-button');
     const generateWeeklyListButton = document.getElementById('generate-weekly-list-button');
+    const clearPlannerButton = document.getElementById('clear-planner-button');
     let ingredients = [];
     let savedRecipeIds = [];
     let currentOffset = 0;
     let mealPlan = {
         monday: null, tuesday: null, wednesday: null, thursday: null, friday: null, saturday: null, sunday: null
+    };
+    const config = {
+        apiKey: 'b0cad93a1b1b4b4fb64f8c6a6c046211',
+        searchResultLimit: 12
     };
     
     function showToast(message) {
@@ -480,7 +485,17 @@ document.addEventListener('DOMContentLoaded', () => {
         currentOffset += 12;
         findRecipes(true);
     });
-    generateWeeklyListButton.addEventListener('click', generateWeeklyShoppingList)
+    generateWeeklyListButton.addEventListener('click', generateWeeklyShoppingList);
+    clearPlannerButton.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear the whole meal plan?')) {
+            mealPlan = {
+                monday: null, tuesday: null, wednesday: null, thursday: null, friday: null, saturday: null, sunday: null
+            };
+            saveMealPlan();
+            renderMealPlanner();
+            showToast('Meal planner cleared');
+        }
+    })
     loadIngredients();
     loadFavourites();
     loadMealPlan();
